@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Vulnerability Scanner</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Web Vulnerability Scanner</h1>
+
+        <!-- Form to input the target URL -->
+        <form method="POST" action="/scan">
+            <input type="text" name="target_url" placeholder="Enter target URL" required>
+            <button type="submit">Scan</button>
+        </form>
+
+        <!-- Section: Download Report and Previous Reports -->
+        {% if vulnerabilities %}
+        <h2 class="section-title">Reports & Filters</h2>
+
+        <!-- Download Report Option -->
+        <h3>Download Report</h3>
+        <a href="{{ report_links['pdf'] }}" target="_blank">Download PDF Report</a>
+
+        <!-- Previous Reports Section -->
+        <h3>Previous Reports</h3>
+        {% if existing_reports %}
+        <form method="GET" action="/view-report">
+            <label for="report-select">Select a report:</label>
+            <select name="report_name" id="report-select">
+                {% for report in existing_reports %}
+                <option value="{{ report.file_name }}">{{ report.file_name }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">View Report</button>
+        </form>
+        {% else %}
+        <p>No previous reports available.</p>
+        {% endif %}
+
+        <!-- Filters for vulnerabilities -->
+        <div class="filters">
+            <input type="text" id="search-name" placeholder="Search by vulnerability name..." onkeyup="filterTable()">
+            <select id="filter-risk" onchange="filterTable()">
+                <option value="">Filter by Risk</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+                <option value="Informational">Informational</option>
+            </select>
+            <select id="filter-type" onchange="filterTable()">
+                <option value="">Filter by Type</option>
+                {% for vuln in vulnerabilities %}
+                <option value="{{ vuln.Vulnerability }}">{{ vuln.Vulnerability }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Graph Section: Only show if vulnerabilities exist -->
+        <h2 class="section-title">Vulnerability Analysis</h2>
+        <div id="vulnerability-risk-chart"></div>
+        <div id="vulnerability-type-chart"></div>
+
+        <script>
+            // Prepare risk data
+            const vulnerabilities = {{ vulnerabilities | tojson }};
+            const riskCounts = { High: 0, Medium: 0, Low: 0, Informational: 0 };
+            const vulnTypes = {};
+
+            vulnerabilities.forEach(vuln => {
+                // Count risks
+                riskCounts[vuln.Risk] = (riskCounts[vuln.Risk] || 0) + 1;
+
+                // Count vulnerability types
+                vulnTypes[vuln.Vulnerability] = (vulnTypes[vuln.Vulnerability] || 0) + 1;
+            });
+
+            // Pie chart for risk distribution
+            const riskData = [{
+                labels: Object.keys(riskCounts),
+                values: Object.values(riskCounts),
+                type: 'pie'
+            }];
+            Plotly.newPlot('vulnerability-risk-chart', riskData, {
+                title: 'Vulnerability Risk Distribution'
+            });
+
+            // Bar chart for vulnerability types
+            const typeData = [{
+                x: Object.keys(vulnTypes),
+                y: Object.values(vulnTypes),
+                type: 'bar'
+            }];
+            Plotly.newPlot('vulnerability-type-chart', typeData, {
+                title: 'Vulnerability Types',
+                xaxis: { title: 'Vulnerability Type' },
+                yaxis: { title: 'Count' }
+            });
+
+            // Filter Table Function
+            function filterTable() {
+                const searchValue = document.getElementById('search-name').value.toLowerCase();
+                const riskFilter = document.getElementById('filter-risk').value;
+                const typeFilter = document.getElementById('filter-type').value;
+
+                const table = document.getElementById('vulnerability-table');
+                const rows = table.getElementsByTagName('tr');
+
+                for (let i = 1; i < rows.length; i++) {
+                    const cells = rows[i].getElementsByTagName('td');
+                    const name = cells[2].textContent.toLowerCase();
+                    const risk = cells[4].textContent;
+                    const type = cells[3].textContent;
+
+                    const matchesSearch = name.includes(searchValue);
+                    const matchesRisk = riskFilter ? risk === riskFilter : true;
+                    const matchesType = typeFilter ? type === typeFilter : true;
+
+                    if (matchesSearch && matchesRisk && matchesType) {
+                        rows[i].style.display = '';
+                    } else {
+                        rows[i].style.display = 'none';
+                    }
+                }
+            }
+        </script>
+        {% endif %}
+
+        <!-- Table Section: Only show if vulnerabilities exist -->
+        {% if vulnerabilities %}
+        <h2 class="section-title">Detailed Vulnerabilities</h2>
+        <table id="vulnerability-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>URL</th>
+                    <th>Vulnerability</th>
+                    <th>Description</th>
+                    <th>Risk</th>
+                    <th>Solution</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for vuln in vulnerabilities %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ vuln.URL }}</td>
+                    <td>{{ vuln.Vulnerability }}</td>
+                    <td>{{ vuln.Description | nl2br }}</td>
+                    <td>{{ vuln.Risk }}</td>
+                    <td>{{ vuln.Solution | nl2br }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+</body>
+</html>
