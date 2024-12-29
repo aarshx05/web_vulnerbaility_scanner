@@ -1,199 +1,164 @@
-Web App Vulnerability Scanner
+# Web App Vulnerability Scanner
 
-This repository contains a Web Application Vulnerability Scanner powered by OWASP ZAP, Flask, and AWS S3. It provides a user-friendly interface for scanning websites for security vulnerabilities, generating detailed reports, and storing them in the cloud for easy access.
+## Overview
 
-Features
+The **Web App Vulnerability Scanner** is a robust application that integrates OWASP ZAP with a user-friendly web interface built using Flask. It enables users to scan websites for vulnerabilities, generate detailed reports (PDF, JSON, and CSV), and store them securely in AWS S3 for easy access and review.
 
-OWASP ZAP Integration: Uses OWASP ZAP's API to perform spidering, passive, and active scans.
+---
 
-Detailed Reports: Automatically generates reports in PDF, JSON, and CSV formats.
+## Features
 
-Cloud Storage: Stores reports in AWS S3 for secure, centralized access.
+- **OWASP ZAP Integration**: Automated scanning with progress tracking for spidering, passive, and active scans.
+- **Report Generation**: Creates reports in PDF, JSON, and CSV formats.
+- **AWS S3 Storage**: Uploads and retrieves reports securely.
+- **Web Interface**: User-friendly Flask application with real-time feedback and report viewing.
+- **Customizable Templates**: Easily extendable and modifiable templates for new use cases.
+- **Security Measures**: Includes features like escaping user input and using API keys for secure operations.
 
-Flask Web Interface: Offers an intuitive UI for scanning, viewing results, and accessing reports.
+---
 
-Custom Filters: Implements custom rendering for vulnerability details using Jinja2 filters.
+## Table of Contents
 
-Table of Contents
+1. [Prerequisites](#prerequisites)  
+2. [Installation](#installation)  
+3. [Usage](#usage)  
+4. [How It Works](#how-it-works)  
+5. [Future Prospects](#future-prospects)  
+6. [Contributing](#contributing)  
+7. [License](#license)
 
-Prerequisites
+---
 
-Installation
+## Prerequisites
 
-Usage
+1. **Python** (3.8 or above)  
+2. **OWASP ZAP** installed and running locally or on a remote server.  
+3. **AWS Account** with an S3 bucket set up.  
+4. API keys for OWASP ZAP and AWS configured.  
+5. Recommended: Virtual environment for Python dependencies.
 
-Configuration
+---
 
-How It Works
+## Installation
 
-Future Prospects
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/web-app-vulnerability-scanner.git
+   cd web-app-vulnerability-scanner
+   ```
 
-Contributing
+2. Set up a Python virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate   # On Windows: venv\Scripts\activate
+   ```
 
-License
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-Prerequisites
+4. Configure environment variables:
+   Create a `.env` file in the root directory:
+   ```
+   ZAP_API_KEY=your_owasp_zap_api_key
+   S3_BUCKET_NAME=your_s3_bucket_name
+   AWS_ACCESS_KEY_ID=your_aws_access_key_id
+   AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
+   ```
 
-Ensure you have the following installed and configured on your system:
+5. Start the Flask application:
+   ```bash
+   flask run
+   ```
 
-OWASP ZAP
+---
 
-Download and install from https://www.zaproxy.org/download/.
+## Usage
 
-Python 3.8+
+### Running the Scanner
 
-AWS CLI (Configured with appropriate credentials)
+1. Open the application in your browser at `http://127.0.0.1:5000/`.
+2. Enter the target URL in the input field and start the scan.
+3. Monitor scan progress in real time.
+4. View vulnerabilities on the results page.
+5. Download reports in your preferred format (PDF, JSON, CSV).
 
-Boto3 (For AWS S3 interactions)
+### Viewing Reports
 
-Flask (For the web interface)
+- The home page lists all existing reports stored in the S3 bucket.
+- Select a report to view its detailed contents.
 
-FPDF (For PDF report generation)
+### API Endpoints
 
-Installation
+- **Scan a URL**: `/scan` (POST)  
+  Payload:  
+  ```json
+  {
+      "target_url": "http://example.com"
+  }
+  ```
 
-Clone the repository:
+- **List Reports**: `/view-report` (GET)  
+  Parameters:  
+  ```
+  report_name=<report_file_name>
+  ```
 
-git clone https://github.com/yourusername/web-app-vulnerability-scanner.git
-cd web-app-vulnerability-scanner
+---
 
-Set up a Python virtual environment:
+## How It Works
 
-python3 -m venv venv
-source venv/bin/activate  # On Windows, use venv\Scripts\activate
+1. **Spidering**:
+   - Crawls the target website to discover URLs.
+2. **Scanning**:
+   - Performs passive and active vulnerability scans using OWASP ZAP.
+3. **Reporting**:
+   - Converts scan results into PDF, JSON, and CSV formats.
+4. **Storage**:
+   - Uploads reports to AWS S3 for secure storage.
+5. **Visualization**:
+   - Displays vulnerabilities and provides download links for reports via the web interface.
 
-Install dependencies:
+---
 
-pip install -r requirements.txt
+## Future Prospects
 
-Configure environment variables:
-Create a .env file to store sensitive credentials:
+### 1. **Integration with More Tools**
+   - Add support for tools like Burp Suite, Nessus, or Nmap for comprehensive security analysis.
 
-ZAP_API_KEY=your_zap_api_key
-S3_BUCKET_NAME=your_s3_bucket_name
+### 2. **Enhanced Reporting**
+   - Provide interactive dashboards with charts and graphs for easier vulnerability management.
 
-Start OWASP ZAP:
-Ensure ZAP is running on your local machine (http://localhost:8080).
+### 3. **Automated Scanning**
+   - Set up periodic scans for monitoring websites and send alerts for newly discovered vulnerabilities.
 
-Run the Flask application:
+### 4. **Role-Based Access**
+   - Implement user authentication and role-based access to secure sensitive operations.
 
-python app.py
+### 5. **Threat Intelligence Integration**
+   - Enrich reports with contextual threat intelligence from external sources.
 
-Usage
+### 6. **Containerization**
+   - Package the application using Docker for easy deployment across environments.
 
-Scanning a Website
+### 7. **Multi-Cloud Support**
+   - Extend storage options to Google Cloud Storage or Azure Blob Storage.
 
-Open your browser and navigate to http://127.0.0.1:5000.
+---
 
-Enter the target website URL in the input box and click "Scan."
+## Contributing
 
-Monitor the scan progress in the terminal logs.
+We welcome contributions from the community! Here's how you can get started:
 
-Once the scan is complete, view the vulnerabilities and download reports in PDF, JSON, or CSV formats.
+1. Fork the repository.  
+2. Create a new branch for your feature/bug fix.  
+3. Commit your changes with descriptive messages.  
+4. Push your changes to your fork.  
+5. Open a pull request and describe your changes in detail.
 
-Viewing Reports
+---
 
-Access the "Existing Reports" section on the homepage.
+## Contact
 
-Click on a report to view or download it.
-
-Example Commands
-
-Run OWASP ZAP in headless mode:
-
-zap.sh -daemon -config api.key=your_zap_api_key
-
-Configuration
-
-Environment Variables:
-
-ZAP_API_KEY: The API key for authenticating with OWASP ZAP.
-
-S3_BUCKET_NAME: The name of the AWS S3 bucket for storing reports.
-
-AWS Credentials:
-Ensure the AWS CLI is configured with access to the specified S3 bucket.
-
-aws configure
-
-Custom Filters:
-The nl2br filter converts newline characters to <br> tags for rendering vulnerability descriptions.
-
-How It Works
-
-Spidering: The scanner identifies all reachable URLs on the target website.
-
-Passive Scanning: ZAP scans the captured URLs for vulnerabilities without altering the website.
-
-Active Scanning: ZAP performs an in-depth scan to identify critical vulnerabilities.
-
-Report Generation:
-
-Vulnerabilities are compiled into a PDF, JSON, and CSV.
-
-Reports are uploaded to AWS S3 for centralized access.
-
-Cloud Storage: Reports are stored and retrieved from AWS S3 via the boto3 library.
-
-Future Prospects
-
-Enhancements
-
-Multi-Scanner Integration:
-
-Incorporate additional tools like Burp Suite or Nessus for broader vulnerability coverage.
-
-Authentication Support:
-
-Enable scans behind login pages using ZAP authentication scripts.
-
-Dynamic Dashboard:
-
-Implement a real-time dashboard with charts and graphs for vulnerability trends.
-
-User Management:
-
-Add role-based access to the application for multiple users.
-
-Custom Policies:
-
-Allow users to define custom scanning rules and policies.
-
-AI-Powered Features
-
-Risk Analysis:
-
-Use machine learning to classify and prioritize vulnerabilities based on severity and likelihood of exploitation.
-
-Automated Remediation Suggestions:
-
-Generate detailed, context-aware recommendations for fixing vulnerabilities.
-
-Scalability
-
-Distributed Scanning:
-
-Deploy the scanner on a cluster for concurrent scans.
-
-Cloud-Native Deployment:
-
-Containerize the application using Docker and orchestrate with Kubernetes.
-
-Integration with CI/CD:
-
-Embed vulnerability scans into DevOps pipelines for continuous security testing.
-
-Contributing
-
-We welcome contributions from the community! To contribute:
-
-Fork this repository.
-
-Create a feature branch (git checkout -b feature-name).
-
-Commit your changes (git commit -m "Add feature").
-
-Push to the branch (git push origin feature-name).
-
-Open a Pull Request.
-
+For any queries or feedback, feel free to reach out via email at `aarsh.chaurasia.201007@gmail.com` or open an issue in the GitHub repository.  
